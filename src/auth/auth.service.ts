@@ -11,6 +11,8 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { ResetPasswordDto } from './dtos/ResetPassword.dto';
+import { LoginDto } from './dtos/Login.dto';
+import { RegistrationDto } from './dtos/Registration.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,18 +21,21 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto) {
+  async login(userDto: LoginDto) {
     const user = await this.validateUser(userDto);
     return this.generateToken(user);
   }
 
-  async registration(userDto) {
+  async registration(userDto: RegistrationDto) {
     const existingByEmail = await this.usersService.getUserByEmail(
       userDto.email,
     );
 
     if (existingByEmail) {
-      throw new HttpException('', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'This email is already registered',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const existingByUserName = await this.usersService.getUserByUsername(
@@ -38,7 +43,10 @@ export class AuthService {
     );
 
     if (existingByUserName) {
-      throw new HttpException('', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'This username is already registered',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const hashPassword = await bcrypt.hash(userDto.password, 3);
@@ -55,22 +63,22 @@ export class AuthService {
     };
   }
 
-  private async validateUser(userDto: CreateUserDto) {
+  private async validateUser(userDto: LoginDto) {
     const user = await this.usersService.getUserByEmail(userDto.email);
     if (!user) {
-      throw new UnauthorizedException({ message: 'Некорректный емайл' });
+      throw new UnauthorizedException({ message: 'Invalid Email' });
     }
     const passwordEquals = await bcrypt.compare(
       userDto.password,
       user.password,
     );
     if (!passwordEquals) {
-      throw new UnauthorizedException({ message: 'Некорректный пароль' });
+      throw new UnauthorizedException({ message: 'Invalid password' });
     }
     return user;
   }
 
-  async resetPassword(userId: any, resetPasswordDto: ResetPasswordDto) {
+  async resetPassword(userId: number, resetPasswordDto: ResetPasswordDto) {
     const user = await this.usersService.findById(userId);
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
@@ -78,6 +86,7 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(resetPasswordDto.password, 3);
     user.password = hashPassword;
+
     await this.usersService.updatePassword(user);
   }
 }
