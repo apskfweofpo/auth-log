@@ -1,6 +1,7 @@
-import { LoggerService } from '@nestjs/common';
+import { Injectable, LoggerService } from '@nestjs/common';
 import { createLogger, format, Logger, transports } from 'winston';
 
+@Injectable()
 export class MyLoggerService implements LoggerService {
   logger: Logger;
 
@@ -20,8 +21,8 @@ export class MyLoggerService implements LoggerService {
     this.logger.info(message);
   }
 
-  error(message: string, trace: string) {
-    this.logger.error(message, trace);
+  error(message: string) {
+    this.logger.error(message);
   }
 
   warn(message: string) {
