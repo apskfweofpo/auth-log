@@ -5,6 +5,7 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import jwtConfig from 'src/config/jwt.config';
+import { MyLoggerModule } from 'src/my-logger/my-logger.module';
 
 @Module({
   controllers: [AuthController],
@@ -24,6 +25,7 @@ import jwtConfig from 'src/config/jwt.config';
       }),
       inject: [ConfigService],
     }),
+    MyLoggerModule,
   ],
   exports: [AuthService, JwtModule],
 })
