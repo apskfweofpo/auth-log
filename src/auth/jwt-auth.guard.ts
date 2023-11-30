@@ -6,9 +6,12 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
+import { MyLoggerService } from 'src/my-logger/my-logger.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly logger = new MyLoggerService();
+
   constructor(private jwtService: JwtService) {}
 
   canActivate(
@@ -30,6 +33,7 @@ export class JwtAuthGuard implements CanActivate {
       req.userId = user.id;
       return true;
     } catch (e) {
+      this.logger.error(`ValidationExceptions: ${e.message}`);
       throw new UnauthorizedException({
         message: e.message,
       });
