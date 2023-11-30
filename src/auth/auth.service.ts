@@ -35,7 +35,9 @@ export class AuthService {
 
     if (existingByEmail) {
       this.logger.error(
-        `This email is already registered. Email:${existingByEmail}`,
+        `This email is already registered. Email:${JSON.stringify(
+          existingByEmail,
+        )}`,
       );
       throw new HttpException(
         'This email is already registered',
@@ -49,7 +51,7 @@ export class AuthService {
 
     if (existingByUserName) {
       this.logger.error(
-        `This username is already registered. Username:${existingByUserName}`,
+        `This username is already registered. Username:${JSON.stringify(existingByUserName)}`,
       );
       throw new HttpException(
         'This username is already registered',
